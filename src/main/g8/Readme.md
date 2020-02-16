@@ -7,4 +7,5 @@ Assemly
     mill $name$.assembly
 
 Run
+
     mill $name$.run
