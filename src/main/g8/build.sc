@@ -6,7 +6,8 @@ object $name$ extends ScalaModule {
   def ivyDeps = Agg(
     ivy"net.liftweb::lift-json:3.3.0",
     ivy"ch.qos.logback:logback-classic:1.2.3",
-    ivy"com.typesafe.scala-logging::scala-logging:3.9.0"
+    ivy"com.typesafe.scala-logging::scala-logging:3.9.0",
+    ivy"org.apache.spark::spark-sql:2.4.5"
   )
   def scalacOptions = Seq("-encoding", "utf-8", "-explaintypes", "-feature", "-deprecation")
 }

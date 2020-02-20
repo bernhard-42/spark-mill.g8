@@ -28,7 +28,22 @@ object $name$ {
     val logger = Logger("$name$")
 
     def main(args: Array[String]) {
-        logger.info(s"Hello Scala")
+        logger.info(s"Starting Spark")
+
+        val appName = "SparkApp"
+        val master = "local[*]"
+
+        val spark = SparkSession
+            .builder()
+            .appName(appName)
+            .master(master)
+            .getOrCreate()
+
+        spark.sparkContext.setLogLevel("ERROR")
+
+        logger.info(s"Stopping Spark")
+        spark.stop()
+        logger.info(s"Done")
     }
 }
 
