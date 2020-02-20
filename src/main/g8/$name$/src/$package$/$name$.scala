@@ -24,6 +24,9 @@ import scala.collection.JavaConversions._
 
 import com.typesafe.scalalogging.Logger
 
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
+
 object $name$ {
     val logger = Logger("$name$")
 
