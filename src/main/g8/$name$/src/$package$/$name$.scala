@@ -31,7 +31,7 @@ object $name$ {
     val logger = Logger("$name$")
 
     def main(args: Array[String]) {
-        logger.info(s"Starting Spark")
+        logger.debug(s"Starting Spark")
 
         val appName = "SparkApp"
         val master = "local[*]"
@@ -41,12 +41,14 @@ object $name$ {
             .appName(appName)
             .master(master)
             .getOrCreate()
+        val sc = spark.sparkContext
+        logger.debug("Spark Context created")
 
-        spark.sparkContext.setLogLevel("ERROR")
+        sc.range(0,10).collect().foreach((println))
 
-        logger.info(s"Stopping Spark")
+        logger.debug(s"Stopping Spark")
         spark.stop()
-        logger.info(s"Done")
+        logger.debug(s"Done")
     }
 }
 
