@@ -13,42 +13,42 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
- */
-
+  */
 package $package$
-
-import java.io.File
 
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 
-import com.typesafe.scalalogging.Logger
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
 object $name$ {
-    val logger = Logger("$name$")
+  val logger = LoggerFactory.getLogger("$name$")
+  val standalone = true
 
-    def main(args: Array[String]) {
-        logger.debug(s"Starting Spark")
+  def main(args: Array[String]) {
+    logger.debug(s"Starting Spark ...")
 
-        val appName = "SparkApp"
-        val master = "local[*]"
+    val builder = SparkSession
+      .builder()
 
-        val spark = SparkSession
-            .builder()
-            .appName(appName)
-            .master(master)
-            .getOrCreate()
-        val sc = spark.sparkContext
-        logger.debug("Spark Context created")
-
-        sc.range(0,10).collect().foreach((println))
-
-        logger.debug(s"Stopping Spark")
-        spark.stop()
-        logger.debug(s"Done")
+    if (standalone) {
+      builder
+        .appName("$name$")
+        .master("local[*]")
     }
-}
 
+    val spark = builder.getOrCreate()
+    val sc = spark.sparkContext
+    logger.debug("Spark Context created")
+
+    sc.range(0, 10).collect().foreach((println))
+
+    logger.debug(s"Stopping Spark")
+    spark.stop()
+    logger.debug(s"Done")
+  }
+}
