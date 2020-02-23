@@ -1,5 +1,5 @@
 /**
-    Copyright 2020 Bernhard Walter
+    Copyright <YEAR> <NAME>
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -22,33 +22,47 @@ import scala.collection.JavaConversions._
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
 object $name$ {
+  val STANDALONE = true
+
   val logger = LoggerFactory.getLogger("$name$")
-  val standalone = true
+  var spark: SparkSession = null
+  var sc: SparkContext = null
 
-  def main(args: Array[String]) {
-    logger.debug(s"Starting Spark ...")
+  def getBuilder(): SparkSession.Builder = {
+    val builder = SparkSession.builder()
 
-    val builder = SparkSession
-      .builder()
-
-    if (standalone) {
+    if (STANDALONE) {
       builder
         .appName("$name$")
         .master("local[*]")
     }
+    return builder
+  }
 
-    val spark = builder.getOrCreate()
-    val sc = spark.sparkContext
-    logger.debug("Spark Context created")
+  def cleanup() = {
+    if (STANDALONE) {
+      logger.info("Stopping Spark")
+      spark.stop()
+    }
+    logger.info(s"Done")
+  }
+
+  def main(args: Array[String]) = {
+    logger.debug("java version  " + System.getProperty("java.runtime.version"))
+    logger.debug("scala " + scala.util.Properties.versionString)
+
+    logger.info("Initializing Spark Session")
+    spark = getBuilder().getOrCreate()
+    sc = spark.sparkContext
+    logger.info("Successfuly initilized Spark Session")
 
     sc.range(0, 10).collect().foreach((println))
 
-    logger.debug(s"Stopping Spark")
-    spark.stop()
-    logger.debug(s"Done")
+    cleanup()
   }
 }
