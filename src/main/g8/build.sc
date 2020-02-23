@@ -1,7 +1,7 @@
 import mill._, scalalib._
 import mill.modules.Assembly
 
-object SparkApp extends ScalaModule {
+object $name$ extends ScalaModule {
   def scalaVersion = "2.12.10"
   def scalacOptions =
     Seq("-encoding", "utf-8", "-explaintypes", "-feature", "-deprecation")
