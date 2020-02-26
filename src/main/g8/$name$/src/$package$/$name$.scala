@@ -33,7 +33,7 @@ object $name$ {
   var spark: SparkSession = null
   var sc: SparkContext = null
 
-  def getBuilder(): SparkSession.Builder = {
+  def getSparkSession(): SparkSession.Builder = {
     val builder = SparkSession.builder()
 
     if (STANDALONE) {
@@ -41,7 +41,7 @@ object $name$ {
         .appName("$name$")
         .master("local[*]")
     }
-    return builder
+    return builder.getOrCreate()
   }
 
   def cleanup() = {
@@ -57,7 +57,7 @@ object $name$ {
     logger.debug("scala " + scala.util.Properties.versionString)
 
     logger.info("Initializing Spark Session")
-    spark = getBuilder().getOrCreate()
+    spark = getSparkSession()
     sc = spark.sparkContext
     logger.info("Successfuly initilized Spark Session")
 
