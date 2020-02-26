@@ -9,14 +9,9 @@ object $name$ extends ScalaModule { outer =>
   def sparkIvyDeps =
     Agg(
       ivy"org.apache.spark::spark-sql:$spark_version$"
-        .exclude("org.slf4j" -> "slf4j-log4j12"),
-      ivy"org.slf4j:slf4j-api:$slf4j_version$",
-      ivy"org.slf4j:slf4j-log4j12:$slf4j_version$"
     )
 
-  def appIvyDeps = Agg(
-    ivy"com.lihaoyi::ujson:0.7.4"
-  )
+  // def ivyDeps = Agg( )
 
   def compileIvyDeps = sparkIvyDeps
 
@@ -29,7 +24,7 @@ object $name$ extends ScalaModule { outer =>
       ).map(Assembly.Rule.ExcludePattern.apply)
       
   object standalone extends ScalaModule {
-    def finalMainClass = T { "$package$.$name$" }
+    def mainClass = T { Some("$package$.$name$") }
     def scalaVersion = outer.scalaVersion
     def moduleDeps = Seq(outer)
     def ivyDeps = outer.sparkIvyDeps

@@ -26,45 +26,52 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
-object $name$ {
-  var standalone = true
+class SparkJob(master: String, name: String) {
+  val logger = LoggerFactory.getLogger("SparkJob")
 
-  val logger = LoggerFactory.getLogger("$name$")
-  var spark: SparkSession = null
-  var sc: SparkContext = null
+  var spark: SparkSession = _
+  var standalone = false
 
-  def getSparkSession(): SparkSession = {
-    val builder = SparkSession.builder().appName("$name$")
+  def getSparkSession(master: String): SparkSession = {
+    logger.info("Initializing Spark Session")
+    val builder = SparkSession.builder().appName(name)
 
     if (master.length > 0) {
+      standalone = true
       builder.master(master)
     }
-    return builder.getOrCreate()
+
+    val spark = builder.getOrCreate()
+    logger.info("Successfuly initilized Spark Session")
+    return spark
   }
 
   def cleanup() = {
-    if (master.length > 0) {
+    if (standalone) {
       logger.info("Stopping Spark")
       spark.stop()
     }
-    logger.info(s"Done")
   }
 
-  def main(args: Array[String]) = {
-    if (args.length > 0) {
-      master = args(0)
-    }
+  def run() {
+    spark = getSparkSession(master)
 
+    spark.sparkContext.range(0, 10).collect().foreach((println))
+
+    cleanup()
+  }
+}
+
+object $name$ {
+  val logger = LoggerFactory.getLogger("$name$")
+
+  def main(args: Array[String]) = {
     logger.debug("java version  " + System.getProperty("java.runtime.version"))
     logger.debug("scala " + scala.util.Properties.versionString)
 
-    logger.info("Initializing Spark Session")
-    spark = getSparkSession()
-    sc = spark.sparkContext
-    logger.info("Successfuly initilized Spark Session")
+    val master = if (args.length == 1) args(0) else ""
+    new SparkJob(master, "$name$").run()
 
-    sc.range(0, 10).collect().foreach((println))
-
-    cleanup()
+    logger.info("Done")
   }
 }
