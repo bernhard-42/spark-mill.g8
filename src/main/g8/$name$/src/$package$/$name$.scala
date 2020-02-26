@@ -27,25 +27,23 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
 object $name$ {
-  val STANDALONE = true
+  var standalone = true
 
   val logger = LoggerFactory.getLogger("$name$")
   var spark: SparkSession = null
   var sc: SparkContext = null
 
   def getSparkSession(): SparkSession = {
-    val builder = SparkSession.builder()
+    val builder = SparkSession.builder().appName("$name$")
 
-    if (STANDALONE) {
-      builder
-        .appName("$name$")
-        .master("local[*]")
+    if (master.length > 0) {
+      builder.master(master)
     }
     return builder.getOrCreate()
   }
 
   def cleanup() = {
-    if (STANDALONE) {
+    if (master.length > 0) {
       logger.info("Stopping Spark")
       spark.stop()
     }
@@ -53,6 +51,10 @@ object $name$ {
   }
 
   def main(args: Array[String]) = {
+    if (args.length > 0) {
+      master = args(0)
+    }
+
     logger.debug("java version  " + System.getProperty("java.runtime.version"))
     logger.debug("scala " + scala.util.Properties.versionString)
 
