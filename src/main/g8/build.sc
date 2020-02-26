@@ -1,33 +1,36 @@
 import mill._, scalalib._
 import mill.modules.Assembly
 
-object $name$ extends ScalaModule {
+object $name$ extends ScalaModule { outer =>
   def scalaVersion = "2.12.10"
   def scalacOptions =
     Seq("-encoding", "utf-8", "-explaintypes", "-feature", "-deprecation")
 
-  def ivySparkDeps = Agg(
-    ivy"org.apache.spark::spark-sql:2.4.5"
-      .exclude("org.slf4j" -> "slf4j-log4j12"),
-    ivy"org.slf4j:slf4j-api:1.7.16",
-    ivy"org.slf4j:slf4j-log4j12:1.7.16"
+  def sparkIvyDeps =
+    Agg(
+      ivy"org.apache.spark::spark-sql:$spark_version$"
+        .exclude("org.slf4j" -> "slf4j-log4j12"),
+      ivy"org.slf4j:slf4j-api:$slf4j_version$",
+      ivy"org.slf4j:slf4j-log4j12:$slf4j_version$"
+    )
+
+  def appIvyDeps = Agg(
+    ivy"com.lihaoyi::ujson:1.0.0"
   )
 
-  def ivyBaseDeps = Agg(
-    ivy"com.lihaoyi::upickle:0.9.7"
-  )
+  def ivyDeps = appIvyDeps ++ sparkIvyDeps
 
-  // STANDALONE APP
-  def ivyDeps = ivyBaseDeps ++ ivySparkDeps
+  object remote extends ScalaModule {
+    def scalaVersion = outer.scalaVersion
+    def ivyDeps = outer.appIvyDeps
+    def compileIvyDeps = outer.sparkIvyDeps
+    def assemblyRules =
+      Assembly.defaultRules ++
+        Seq(
+          "scala/.*",
+          "org.slf4j.*",
+          "org.apache.log4j.*"
+        ).map(Assembly.Rule.ExcludePattern.apply)
 
-  // REMOTE SPARK CLUSTER
-  // def ivyDeps = ivyBaseDeps
-  // def compileIvyDeps = ivySparkDeps
-  // def assemblyRules =
-  //   Assembly.defaultRules ++
-  //     Seq(
-  //       "scala/.*",
-  //       "org.slf4j.*",
-  //       "org.apache.log4j.*"
-  //     ).map(Assembly.Rule.ExcludePattern.apply)
+  }
 }
